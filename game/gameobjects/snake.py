@@ -4,12 +4,14 @@ import pygame
 from .moveable_gameobject import MoveableGameobject
 from game.constatnts import *
 
+
 class Snake(MoveableGameobject):
     """Class of game objectr snake"""
 
-    def __init__(self, gamefield, *args, **kwargs):
-        super().__init__(gamefield=gamefield, unique=True, cls=self.__class__,
-                         color=SNAKE_COLOR, *args, **kwargs)
+    def __init__(self, gameobjects, *args, **kwargs):
+        super().__init__(gameobjects=gameobjects, unique=True,
+                         cls=self.__class__, color=SNAKE_COLOR,
+                         *args, **kwargs)
         self._reset()
 
     def _reset(self):

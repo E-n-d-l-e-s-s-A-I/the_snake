@@ -6,16 +6,14 @@ from random import randint
 class GameObject:
     """Abstract class of game object"""
 
-    def __init__(self, *, gamefield, unique=False, cls=None, color=None,):
+    def __init__(self, *, gameobjects=[], unique=False, cls=None, color=None,):
 
         if unique and list(filter(lambda x: isinstance(x, cls),
-                                  gamefield.gameobjects)):
+                                  gameobjects)):
             raise ValueError("unique GameObject already exists")
 
         self.body_color = color
-        self.gamefield = gamefield
-        self._set_random_position(gamefield.gameobjects)
-        self.gamefield.add_gameobject(self)
+        self._set_random_position(gameobjects)
 
     @staticmethod
     def _get_screen_position(position):
@@ -46,11 +44,6 @@ class GameObject:
             position = self._get_random_position()
 
         self.positions = [position]
-
-    def delete(self):
-        """Delete object from gamefield"""
-        self.gamefield.delete_gameobject(self)
-        self.clear(self.gamefield.screen)
 
     @staticmethod
     def _get_random_position():

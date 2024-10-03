@@ -4,8 +4,9 @@ from .constatnts import *
 from .gameobjects import (Apple, Snake, Field, MoveableGameobject, GameObject,
                           SnakeEatYourselfException, Rock)
 
+
 class SnakeGame:
-    """class of game"""
+    """Class of game"""
 
     def __init__(self):
         # Pygame init
@@ -46,29 +47,26 @@ class SnakeGame:
         return list(filter(lambda x: isinstance(x, Apple),
                     self._game_field.gameobjects))
 
-    def _create_game_object(self, cls: GameObject):
-        """Create game object by class, uniqe if it need"""
-        cls(gamefield=self._game_field)
+    def _create_game_object(self, cls):
+        """Create gameobject by class, uniqe if it need"""
+        self._game_field.add_gameobject(cls)
 
-    def _move_moveable_gameobjects(self):
-        """Call _handle_keys() for MoveableGameobject objects"""
-        for gameobject in self._game_field.gameobjects:
-            if isinstance(gameobject, MoveableGameobject):
-                self._handle_keys(gameobject)
-                gameobject.update_direction()
+    def _delete_game_object(self, gameobject: GameObject):
+        """Delete gameobject"""
+        self._game_field.delete_gameobject(gameobject)
 
     def _move_snake(self):
         """Move snake"""
         try:
             self._snake.move()
         except SnakeEatYourselfException:
-            self._snake.delete()
+            self._delete_game_object(self._snake)
             self._create_game_object(Snake)
 
     def _apple_collision(self, apple):
         """Handling a collision with a apple"""
         self._snake.current_lenght += 1
-        apple.delete()
+        self._delete_game_object(apple)
         self._create_game_object(Apple)
         self.difficult_up()
 
@@ -87,17 +85,6 @@ class SnakeGame:
             case Rock():
                 self._rock_collision(object_on_position)
 
-    def play(self):
-        """Main method of game"""
-        pygame.init
-        while True:
-            self.clock.tick(self.speed)
-
-            self._move_moveable_gameobjects()
-            self._move_snake()
-            self._check_snake_collisions()
-            self._draw_frame()
-
     def _draw_frame(self):
         """Draw field frame"""
         self._game_field.draw()
@@ -113,6 +100,17 @@ class SnakeGame:
         self._game_field.reset()
         self._create_start_game_objects()
         self._set_default_options()
+
+    def play(self):
+        """Main method of game"""
+        pygame.init
+        while True:
+            self.clock.tick(self.speed)
+
+            self._handle_keys(self._snake)
+            self._move_snake()
+            self._check_snake_collisions()
+            self._draw_frame()
 
     @staticmethod
     def _handle_keys(gameobject):
@@ -137,3 +135,4 @@ class SnakeGame:
                 elif (event.key == pygame.K_RIGHT
                         and gameobject.direction != LEFT):
                     gameobject.next_direction = RIGHT
+        gameobject.update_direction()
