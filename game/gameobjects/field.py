@@ -28,6 +28,7 @@ class Field:
             gameobject.draw(self.screen)
 
         self.gameobjects.append(gameobject)
+        return gameobject
 
     def delete_gameobject(self, gameobject):
         """Delete gameobject from Field"""

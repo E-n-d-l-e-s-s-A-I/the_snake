@@ -32,24 +32,11 @@ class SnakeGame:
     def _set_default_options(self):
         self.speed = SPEED
 
-    @property
-    def _snake(self):
-        """Snake prporty"""
-        # It's not optimized
-        # But it's beauty
-        # Beautiful is better than ugly. - Zen of Pthon
-        return filter(lambda x: isinstance(x, Snake),
-                      self._game_field.gameobjects).__next__()
-
-    @property
-    def _apples(self):
-        """Apple prporty"""
-        return list(filter(lambda x: isinstance(x, Apple),
-                    self._game_field.gameobjects))
-
     def _create_game_object(self, cls):
         """Create gameobject by class, uniqe if it need"""
-        self._game_field.add_gameobject(cls)
+        gameobject = self._game_field.add_gameobject(cls)
+        if cls is Snake:
+            self._snake = gameobject
 
     def _delete_game_object(self, gameobject: GameObject):
         """Delete gameobject"""
