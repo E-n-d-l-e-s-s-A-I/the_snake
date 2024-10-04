@@ -1,25 +1,27 @@
 from random import choice
 import pygame
 
-from .moveable_gameobject import MoveableGameobject
+from .abstaract import UserGameObject
+from .abstaract import MoveableGameObject
 from game.constatnts import *
 
 
-class Snake(MoveableGameobject):
+class Snake(MoveableGameObject):
     """Class of game objectr snake"""
 
+    _time_to_move = 2
+    _distane_to_turn = 10
+    _color = ENEMY_SNAKE_COLOR
+
     def __init__(self, gameobjects, *args, **kwargs):
-        super().__init__(gameobjects=gameobjects, unique=True,
-                         cls=self.__class__, color=SNAKE_COLOR,
-                         *args, **kwargs)
+        super().__init__(gameobjects=gameobjects, *args, **kwargs)
         self._reset()
 
     def _reset(self):
         """Reset snake to default"""
         self.length = 1
         self.current_lenght = 1
-        self.direction = choice([RIGHT, LEFT, UP, DOWN])
-        self.next_direction = None
+        self._direction = choice([RIGHT, LEFT, UP, DOWN])
         self.last = None
         self.positions = [self.get_head_position()]
 
@@ -36,22 +38,19 @@ class Snake(MoveableGameobject):
 
     def _lengthen_snake(self, next_head_postion):
         """Lengthen snake if it need"""
-        if next_head_postion in self.positions:
-            raise SnakeEatYourselfException
         self.positions.insert(0, next_head_postion)
 
     def _get_next_head_position(self):
         """Get next head position"""
         next_head_postion = self.get_head_position()
         next_head_postion = tuple(a + b for a, b in
-                                  zip(next_head_postion, self.direction))
+                                  zip(next_head_postion, self._direction))
         next_head_postion = self._round_position(next_head_postion)
         return next_head_postion
 
-    def move(self):
+    def _move(self):
         """Move snake"""
         next_head_postion = self._get_next_head_position()
-
         self._lengthen_snake(next_head_postion)
         self._shorten_snake()
 
@@ -61,23 +60,3 @@ class Snake(MoveableGameobject):
                                     (GRID_SIZE, GRID_SIZE))
             pygame.draw.rect(screen, BOARD_BACKGROUND_COLOR, last_rect)
             self.last = None
-
-    def draw(self, screen):
-        """Extend draw for snake"""
-        super().draw(screen)
-        self._clear_tail(screen)
-
-    def clear(self, screen):
-        """Extend clear for snake"""
-        super().clear(screen)
-        self._clear_tail(screen)
-
-    @staticmethod
-    def _round_position(positon):
-        """Round snake position"""
-        return (abs(positon[0] % GRID_WIDTH),
-                abs(positon[1] % GRID_HEIGHT))
-
-
-class SnakeEatYourselfException(Exception):
-    """Exception caused when a snake eats yourself"""

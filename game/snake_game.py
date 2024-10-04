@@ -1,7 +1,7 @@
 import pygame
 from .constatnts import *
-from .gameobjects import (Apple, Snake, Field, MoveableGameobject, GameObject,
-                          SnakeEatYourselfException, Rock)
+from .gameobjects import (Apple, Snake, Field, MoveableGameObject,
+                          GameObject, Rock, UserSnake)
 from .decorators import singleton
 
 
@@ -26,7 +26,12 @@ class SnakeGame:
 
     @classmethod
     def _create_start_game_objects(cls):
+        cls._create_game_object(UserSnake)
         cls._create_game_object(Snake)
+        cls._create_game_object(Apple)
+        cls._create_game_object(Apple)
+        cls._create_game_object(Apple)
+        cls._create_game_object(Apple)
         cls._create_game_object(Apple)
         cls._create_game_object(Apple)
         cls._create_game_object(Rock)
@@ -39,8 +44,8 @@ class SnakeGame:
     def _create_game_object(cls, gameobject_cls):
         """Create gameobject by class, uniqe if it need"""
         gameobject = cls._game_field.add_gameobject(gameobject_cls)
-        if gameobject_cls is Snake:
-            cls._snake = gameobject
+        if gameobject_cls is UserSnake:
+            cls._user_snake = gameobject
 
     @classmethod
     def _delete_game_object(cls, gameobject: GameObject):
@@ -51,15 +56,15 @@ class SnakeGame:
     def _move_snake(cls):
         """Move snake"""
         try:
-            cls._snake.move()
-        except SnakeEatYourselfException:
-            cls._delete_game_object(cls._snake)
+            cls._user_snake.move()
+        except Exception:
+            cls._delete_game_object(cls._user_snake)
             cls._create_game_object(Snake)
 
     @classmethod
     def _apple_collision(cls, apple):
         """Handling a collision with a apple"""
-        cls._snake.current_lenght += 1
+        cls._user_snake.current_lenght += 1
         cls._delete_game_object(apple)
         cls._create_game_object(Apple)
         cls.difficult_up()
@@ -72,7 +77,7 @@ class SnakeGame:
     @classmethod
     def _check_snake_collisions(cls):
         """Сheck all snake possible collisions"""
-        head_pos = cls._snake.get_head_position()
+        head_pos = cls._user_snake.get_head_position()
         object_on_position = cls._game_field[head_pos[0]][head_pos[1]]
 
         match object_on_position:
@@ -95,6 +100,13 @@ class SnakeGame:
         cls._speed += 1
 
     @classmethod
+    def _move_moveable(cls):
+        for moveable in filter(lambda x: isinstance(x, MoveableGameObject),
+                               cls._game_field.gameobjects):
+            moveable.set_direction()
+            moveable.move()
+
+    @classmethod
     def _game_over(cls):
         cls._game_field.reset()
         cls._create_start_game_objects()
@@ -104,34 +116,17 @@ class SnakeGame:
         """Main method of game"""
         pygame.init
         while True:
+            self._handle_keys()
             self._clock.tick(self._speed)
 
-            self._handle_keys(self._snake)
-            self._move_snake()
+            self._move_moveable()
+
             self._check_snake_collisions()
             self._draw_frame()
 
-    @staticmethod
-    def _handle_keys(gameobject):
+    @classmethod
+    def _handle_keys(cls):
         """Buttons click processing"""
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                raise SystemExit
-            elif event.type == pygame.KEYDOWN:
-
-                if (event.key == pygame.K_UP and gameobject.direction != DOWN):
-                    gameobject.next_direction = UP
-
-                elif (event.key == pygame.K_DOWN
-                        and gameobject.direction != UP):
-                    gameobject.next_direction = DOWN
-
-                elif (event.key == pygame.K_LEFT
-                        and gameobject.direction != RIGHT):
-                    gameobject.next_direction = LEFT
-
-                elif (event.key == pygame.K_RIGHT
-                        and gameobject.direction != LEFT):
-                    gameobject.next_direction = RIGHT
-        gameobject.update_direction()

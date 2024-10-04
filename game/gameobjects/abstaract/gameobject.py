@@ -6,19 +6,8 @@ from random import randint
 class GameObject:
     """Abstract class of game object"""
 
-    def __init__(self, *, gameobjects=[], unique=False, cls=None, color=None,):
-
-        if unique and list(filter(lambda x: isinstance(x, cls),
-                                  gameobjects)):
-            raise ValueError("unique GameObject already exists")
-
-        self.body_color = color
+    def __init__(self, *, gameobjects=[]):
         self._set_random_position(gameobjects)
-
-    @staticmethod
-    def _get_screen_position(position):
-        """Translate grid position to screen position"""
-        return tuple(GRID_SIZE * x for x in position)
 
     def draw(self, screen):
         """Draw game object"""
@@ -26,7 +15,7 @@ class GameObject:
             rect = (pygame.Rect(self._get_screen_position(position),
                                 (GRID_SIZE, GRID_SIZE)))
 
-            pygame.draw.rect(screen, self.body_color, rect)
+            pygame.draw.rect(screen, self._color, rect)
             pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
 
     def clear(self, screen):
@@ -50,6 +39,17 @@ class GameObject:
         """Get random position"""
         return (randint(0, GRID_WIDTH - 1),
                 randint(0, GRID_HEIGHT - 1))
+
+    @staticmethod
+    def _round_position(positon):
+        """Round snake position"""
+        return (abs(positon[0] % GRID_WIDTH),
+                abs(positon[1] % GRID_HEIGHT))
+
+    @staticmethod
+    def _get_screen_position(position):
+        """Translate grid position to screen position"""
+        return tuple(GRID_SIZE * x for x in position)
 
     def __str__(self):
         """Str realization"""

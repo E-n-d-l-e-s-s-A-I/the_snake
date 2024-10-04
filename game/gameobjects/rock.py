@@ -1,10 +1,11 @@
 from game.constatnts import *
-from .gameobject import GameObject
+from .abstaract import StaticGameObject
 
 
-class Rock(GameObject):
+class Rock(StaticGameObject):
     """Class of game objectr rock"""
 
+    _color = ROCK_COLOR
+
     def __init__(self, gameobjects, *args, **kwargs):
-        super().__init__(gameobjects=gameobjects, color=ROCK_COLOR,
-                         *args, **kwargs)
+        super().__init__(gameobjects=gameobjects, *args, **kwargs)

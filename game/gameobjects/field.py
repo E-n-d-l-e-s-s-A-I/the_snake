@@ -1,8 +1,8 @@
 import pygame
 
 from game.constatnts import *
-from .gameobject import GameObject
-from .moveable_gameobject import MoveableGameobject
+from .abstaract.gameobject import GameObject
+from .abstaract.moveable_game_object import MoveableGameObject
 
 
 class Field:
@@ -22,7 +22,7 @@ class Field:
         if not isinstance(gameobject, GameObject):
             raise ValueError("not game object")
 
-        if not isinstance(gameobject, MoveableGameobject):
+        if not isinstance(gameobject, MoveableGameObject):
             for position in gameobject.positions:
                 self._static_objects[position[0]][position[1]] = gameobject
             gameobject.draw(self.screen)
@@ -35,7 +35,7 @@ class Field:
         self.gameobjects.remove(gameobject)
         gameobject.clear(self.screen)
 
-        if not isinstance(gameobject, MoveableGameobject):
+        if not isinstance(gameobject, MoveableGameObject):
             for position in gameobject.positions:
                 self._static_objects[position[0]][position[1]] = None
 
@@ -51,7 +51,7 @@ class Field:
     def draw(self):
         """Draw field"""
         for gameobject in self.gameobjects:
-            if isinstance(gameobject, MoveableGameobject):
+            if isinstance(gameobject, MoveableGameObject):
                 gameobject.draw(self.screen)
 
     def __str__(self) -> str:
