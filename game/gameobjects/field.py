@@ -20,7 +20,7 @@ class Field:
         """Add gameobject to Field"""
         gameobject = cls(gameobjects=self.gameobjects)
         if not isinstance(gameobject, GameObject):
-            raise ValueError("not gameobject")
+            raise ValueError("not game object")
 
         if not isinstance(gameobject, MoveableGameobject):
             for position in gameobject.positions:

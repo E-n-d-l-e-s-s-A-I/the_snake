@@ -1,98 +1,110 @@
 import pygame
-
 from .constatnts import *
 from .gameobjects import (Apple, Snake, Field, MoveableGameobject, GameObject,
                           SnakeEatYourselfException, Rock)
+from .decorators import singleton
 
 
+@singleton
 class SnakeGame:
     """Class of game"""
 
+    # Suppose that the game is singleton
+    # Therefore, decided make all attributes at the class level
+
     def __init__(self):
-        # Pygame init
-        pygame.init()
-        self.clock = pygame.time.Clock()
-        self.screen = pygame.display.set_mode(
-            (SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
-        pygame.display.set_caption(TITLE)
-
-        # Gameobjects init
-        self._game_field = Field(GRID_WIDTH, GRID_HEIGHT, self.screen)
+        self._initialization()
         self._create_start_game_objects()
-
-        # Game options init
         self._set_default_options()
 
-    def _create_start_game_objects(self):
-        self._create_game_object(Snake)
-        self._create_game_object(Apple)
-        self._create_game_object(Apple)
-        self._create_game_object(Rock)
+    @classmethod
+    def _initialization(cls):
+        cls._clock = pygame.time.Clock()
+        cls._screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
+        pygame.display.set_caption(TITLE)
+        cls._game_field = Field(GRID_WIDTH, GRID_HEIGHT, cls._screen)
 
-    def _set_default_options(self):
-        self.speed = SPEED
+    @classmethod
+    def _create_start_game_objects(cls):
+        cls._create_game_object(Snake)
+        cls._create_game_object(Apple)
+        cls._create_game_object(Apple)
+        cls._create_game_object(Rock)
 
-    def _create_game_object(self, cls):
+    @classmethod
+    def _set_default_options(cls):
+        cls._speed = SPEED
+
+    @classmethod
+    def _create_game_object(cls, gameobject_cls):
         """Create gameobject by class, uniqe if it need"""
-        gameobject = self._game_field.add_gameobject(cls)
-        if cls is Snake:
-            self._snake = gameobject
+        gameobject = cls._game_field.add_gameobject(gameobject_cls)
+        if gameobject_cls is Snake:
+            cls._snake = gameobject
 
-    def _delete_game_object(self, gameobject: GameObject):
+    @classmethod
+    def _delete_game_object(cls, gameobject: GameObject):
         """Delete gameobject"""
-        self._game_field.delete_gameobject(gameobject)
+        cls._game_field.delete_gameobject(gameobject)
 
-    def _move_snake(self):
+    @classmethod
+    def _move_snake(cls):
         """Move snake"""
         try:
-            self._snake.move()
+            cls._snake.move()
         except SnakeEatYourselfException:
-            self._delete_game_object(self._snake)
-            self._create_game_object(Snake)
+            cls._delete_game_object(cls._snake)
+            cls._create_game_object(Snake)
 
-    def _apple_collision(self, apple):
+    @classmethod
+    def _apple_collision(cls, apple):
         """Handling a collision with a apple"""
-        self._snake.current_lenght += 1
-        self._delete_game_object(apple)
-        self._create_game_object(Apple)
-        self.difficult_up()
+        cls._snake.current_lenght += 1
+        cls._delete_game_object(apple)
+        cls._create_game_object(Apple)
+        cls.difficult_up()
 
-    def _rock_collision(self, rock):
+    @classmethod
+    def _rock_collision(cls, rock):
         """Handling a collision with a rock"""
-        self._game_over()
+        cls._game_over()
 
-    def _check_snake_collisions(self):
+    @classmethod
+    def _check_snake_collisions(cls):
         """Сheck all snake possible collisions"""
-        head_pos = self._snake.get_head_position()
-        object_on_position = self._game_field[head_pos[0]][head_pos[1]]
+        head_pos = cls._snake.get_head_position()
+        object_on_position = cls._game_field[head_pos[0]][head_pos[1]]
 
         match object_on_position:
             case Apple():
-                self._apple_collision(object_on_position)
+                cls._apple_collision(object_on_position)
             case Rock():
-                self._rock_collision(object_on_position)
+                cls._rock_collision(object_on_position)
 
-    def _draw_frame(self):
+    @classmethod
+    def _draw_frame(cls):
         """Draw field frame"""
-        self._game_field.draw()
+        cls._game_field.draw()
         pygame.display.update()
 
-    def difficult_up(self):
-        """Make dissicult ap"""
-        self._create_game_object(Rock)
-        self._create_game_object(Apple)
-        self.speed += 1
+    @classmethod
+    def difficult_up(cls):
+        """Make difficult up"""
+        cls._create_game_object(Rock)
+        cls._create_game_object(Apple)
+        cls._speed += 1
 
-    def _game_over(self):
-        self._game_field.reset()
-        self._create_start_game_objects()
-        self._set_default_options()
+    @classmethod
+    def _game_over(cls):
+        cls._game_field.reset()
+        cls._create_start_game_objects()
+        cls._set_default_options()
 
     def play(self):
         """Main method of game"""
         pygame.init
         while True:
-            self.clock.tick(self.speed)
+            self._clock.tick(self._speed)
 
             self._handle_keys(self._snake)
             self._move_snake()
