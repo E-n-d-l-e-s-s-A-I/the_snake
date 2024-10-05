@@ -3,14 +3,15 @@ import pygame
 from game.constatnts import *
 from .abstaract.gameobject import GameObject
 from .abstaract.moveable_game_object import MoveableGameObject
+from .abstaract.static_game_object import StaticGameObject
 
 
 class Field:
     """Gamefield class"""
 
     def __init__(self, width, height, screen):
-        self._static_objects = [[None for _ in range(height)]
-                                for _ in range(width)]
+        self.objects_field = [[None for _ in range(height)]
+                              for _ in range(width)]
         self.gameobjects = []
         self.width = width
         self.height = height
@@ -22,22 +23,60 @@ class Field:
         if not isinstance(gameobject, GameObject):
             raise ValueError("not game object")
 
-        if not isinstance(gameobject, MoveableGameObject):
-            for position in gameobject.positions:
-                self._static_objects[position[0]][position[1]] = gameobject
-            gameobject.draw(self.screen)
+        for position in gameobject.positions:
+            self.objects_field[position[0]][position[1]] = gameobject
 
         self.gameobjects.append(gameobject)
+        gameobject.draw(self.screen)
         return gameobject
+
+    @property
+    def static_gameobjects(self):
+        """Static gameobjects"""
+        return filter(lambda x: isinstance(x, StaticGameObject),
+                      self.gameobjects)
+
+    @property
+    def moveable_gameobjects(self):
+        """Moveable gameobjects"""
+        return filter(lambda x: isinstance(x, MoveableGameObject),
+                      self.gameobjects)
 
     def delete_gameobject(self, gameobject):
         """Delete gameobject from Field"""
         self.gameobjects.remove(gameobject)
+
+        for position in gameobject.positions[:]:
+            if self.objects_field[position[0]][position[1]] is gameobject:
+                self.objects_field[position[0]][position[1]] = None
+            elif self.objects_field[position[0]][position[1]] is not None:
+                gameobject.positions.remove(position)
+
+        if isinstance(gameobject, MoveableGameObject):
+            for position in gameobject.tail:
+                if self.objects_field[position[0]][position[1]] is gameobject:
+                    self.objects_field[position[0]][position[1]] = None
+                elif self.objects_field[position[0]][position[1]] is not None:
+                    gameobject.tail.remove(position)
+
         gameobject.clear(self.screen)
 
-        if not isinstance(gameobject, MoveableGameObject):
-            for position in gameobject.positions:
-                self._static_objects[position[0]][position[1]] = None
+    def _clear_tails(self):
+        for moveable in self.moveable_gameobjects:
+            for position in moveable.tail:
+                self.objects_field[position[0]][position[1]] = None
+
+    def update_moveable(self):
+        """Update field"""
+        self._clear_tails()
+        for moveable in self.moveable_gameobjects:
+
+            for position in moveable.positions:
+                object_on_position = self.objects_field[position[0]][position[1]]
+                if object_on_position and object_on_position is not moveable:
+                    raise CollisionException(moveable, object_on_position)
+                else:
+                    self.objects_field[position[0]][position[1]] = moveable
 
     def reset(self):
         """Reset Gamefield"""
@@ -46,7 +85,7 @@ class Field:
 
     def __getitem__(self, index):
         """getitem() realisation"""
-        return self._static_objects[index]
+        return self.objects_field[index]
 
     def draw(self):
         """Draw field"""
@@ -54,8 +93,15 @@ class Field:
             if isinstance(gameobject, MoveableGameObject):
                 gameobject.draw(self.screen)
 
+
+class CollisionException(Exception):
+    """Class of collision exception"""
+
+    def __init__(self, game_obj1, game_obj2, *args, **kwargs):
+        self.game_obj1 = game_obj1
+        self.game_obj2 = game_obj2
+        return super().__init__(*args, **kwargs)
+
     def __str__(self) -> str:
-        """str() realisation"""
-        return "\n".join([" ".join(map(str, row))
-                          for row in self._static_objects
-                          ])
+        """Str"""
+        return f'collision f{self.game_obj1} with f{self.game_obj2}'

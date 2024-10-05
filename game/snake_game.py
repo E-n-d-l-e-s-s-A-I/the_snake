@@ -1,7 +1,8 @@
 import pygame
 from .constatnts import *
 from .gameobjects import (Apple, Snake, Field, MoveableGameObject,
-                          GameObject, Rock, UserSnake)
+                          GameObject, Rock, UserSnake, CollisionException,
+                          ColliseWithYourSelfException)
 from .decorators import singleton
 
 
@@ -13,6 +14,7 @@ class SnakeGame:
     # Therefore, decided make all attributes at the class level
 
     def __init__(self):
+        pygame.init
         self._initialization()
         self._create_start_game_objects()
         self._set_default_options()
@@ -23,18 +25,20 @@ class SnakeGame:
         cls._screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
         pygame.display.set_caption(TITLE)
         cls._game_field = Field(GRID_WIDTH, GRID_HEIGHT, cls._screen)
+        cls._user_snake = None
+        cls._time = 0
 
     @classmethod
     def _create_start_game_objects(cls):
         cls._create_game_object(UserSnake)
         cls._create_game_object(Snake)
+        cls._create_game_object(Snake)
+        cls._create_game_object(Snake)
+        cls._create_game_object(Snake)
         cls._create_game_object(Apple)
         cls._create_game_object(Apple)
         cls._create_game_object(Apple)
         cls._create_game_object(Apple)
-        cls._create_game_object(Apple)
-        cls._create_game_object(Apple)
-        cls._create_game_object(Rock)
 
     @classmethod
     def _set_default_options(cls):
@@ -42,49 +46,17 @@ class SnakeGame:
 
     @classmethod
     def _create_game_object(cls, gameobject_cls):
-        """Create gameobject by class, uniqe if it need"""
+        """Create gameobject by class"""
         gameobject = cls._game_field.add_gameobject(gameobject_cls)
         if gameobject_cls is UserSnake:
             cls._user_snake = gameobject
 
     @classmethod
-    def _delete_game_object(cls, gameobject: GameObject):
+    def delete_game_object(cls, gameobject: GameObject):
         """Delete gameobject"""
         cls._game_field.delete_gameobject(gameobject)
-
-    @classmethod
-    def _move_snake(cls):
-        """Move snake"""
-        try:
-            cls._user_snake.move()
-        except Exception:
-            cls._delete_game_object(cls._user_snake)
-            cls._create_game_object(Snake)
-
-    @classmethod
-    def _apple_collision(cls, apple):
-        """Handling a collision with a apple"""
-        cls._user_snake.current_lenght += 1
-        cls._delete_game_object(apple)
-        cls._create_game_object(Apple)
-        cls.difficult_up()
-
-    @classmethod
-    def _rock_collision(cls, rock):
-        """Handling a collision with a rock"""
-        cls._game_over()
-
-    @classmethod
-    def _check_snake_collisions(cls):
-        """Сheck all snake possible collisions"""
-        head_pos = cls._user_snake.get_head_position()
-        object_on_position = cls._game_field[head_pos[0]][head_pos[1]]
-
-        match object_on_position:
-            case Apple():
-                cls._apple_collision(object_on_position)
-            case Rock():
-                cls._rock_collision(object_on_position)
+        if gameobject is cls._user_snake:
+            cls._game_over()
 
     @classmethod
     def _draw_frame(cls):
@@ -93,18 +65,28 @@ class SnakeGame:
         pygame.display.update()
 
     @classmethod
-    def difficult_up(cls):
+    def _make_time_difficult_up(cls):
         """Make difficult up"""
-        cls._create_game_object(Rock)
-        cls._create_game_object(Apple)
-        cls._speed += 1
+        cls._time += 1
+        if cls._time % 10 == 0:
+            cls._create_game_object(Apple)
+
+        if cls._time % 50 == 0:
+            # cls._speed += 1
+            cls._create_game_object(Snake)
+
+        if cls._time % 100 == 0:
+            cls._create_game_object(Rock)
 
     @classmethod
     def _move_moveable(cls):
         for moveable in filter(lambda x: isinstance(x, MoveableGameObject),
                                cls._game_field.gameobjects):
             moveable.set_direction()
-            moveable.move()
+            try:
+                moveable.move()
+            except ColliseWithYourSelfException:
+                cls.delete_game_object(moveable)
 
     @classmethod
     def _game_over(cls):
@@ -112,16 +94,27 @@ class SnakeGame:
         cls._create_start_game_objects()
         cls._set_default_options()
 
+    @classmethod
+    def _solve_collisions(cls):
+        while True:
+            try:
+                cls._game_field.update_moveable()
+                break
+            except CollisionException as e:
+                obj1 = e.game_obj1
+                obj2 = e.game_obj2
+                obj1.collide_with(obj2, cls)
+
     def play(self):
         """Main method of game"""
-        pygame.init
         while True:
             self._handle_keys()
             self._clock.tick(self._speed)
 
             self._move_moveable()
+            self._solve_collisions()
 
-            self._check_snake_collisions()
+            self._make_time_difficult_up()
             self._draw_frame()
 
     @classmethod

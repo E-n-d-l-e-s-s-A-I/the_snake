@@ -1,8 +1,11 @@
 from random import choice
 import pygame
 
-from .abstaract import UserGameObject
+from .abstaract import GameObject
 from .abstaract import MoveableGameObject
+from .apple import Apple
+from .rock import Rock
+from game.decorators import collision_handler, collision_with_yourself_handler
 from game.constatnts import *
 
 
@@ -22,7 +25,6 @@ class Snake(MoveableGameObject):
         self.length = 1
         self.current_lenght = 1
         self._direction = choice([RIGHT, LEFT, UP, DOWN])
-        self.last = None
         self.positions = [self.get_head_position()]
 
     def get_head_position(self):
@@ -32,7 +34,7 @@ class Snake(MoveableGameObject):
     def _shorten_snake(self):
         """Sgorten snake if it need"""
         if self.current_lenght == self.length:
-            self.last = self.positions.pop()
+            self.tail.append(self.positions.pop())
         else:
             self.length += 1
 
@@ -54,9 +56,35 @@ class Snake(MoveableGameObject):
         self._lengthen_snake(next_head_postion)
         self._shorten_snake()
 
-    def _clear_tail(self, screen):
-        if self.last:
-            last_rect = pygame.Rect(self._get_screen_position(self.last),
-                                    (GRID_SIZE, GRID_SIZE))
-            pygame.draw.rect(screen, BOARD_BACKGROUND_COLOR, last_rect)
-            self.last = None
+    @collision_handler(Apple)
+    def solve_collision_with_apple(self, apple, game):
+        """Handling collision with apple"""
+        self.current_lenght += 1
+        game.delete_game_object(apple)
+
+    @collision_handler(Rock)
+    def solve_collision_with_rock(self, rock, game):
+        """Handling collision with apple"""
+        game.delete_game_object(self)
+
+    @collision_with_yourself_handler
+    def solve_collision_with_snake(self, snake, game):
+        """Handling collision with apple"""
+        if (self.get_head_position() in snake.positions
+                and not snake.get_head_position() in self.positions):
+            game.delete_game_object(self)
+
+        elif (snake.get_head_position() in self.positions
+                and not self.get_head_position() in snake.positions):
+            game.delete_game_object(snake)
+
+        else:
+            if game._user_snake is self:
+                game.delete_game_object(self)
+                return
+            elif game._user_snake is snake:
+                game.delete_game_object(snake)
+                return
+            else:
+                game.delete_game_object(snake)
+                game.delete_game_object(self)

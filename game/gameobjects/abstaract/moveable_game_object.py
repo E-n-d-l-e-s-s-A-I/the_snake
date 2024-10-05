@@ -17,6 +17,7 @@ class MoveableGameObject(GameObject):
         super().__init__(*args, **kwargs)
         self._direction = choice([constants.RIGHT, constants.LEFT,
                                   constants.UP, constants.DOWN])
+        self.tail = []
 
     def _get_available_directions(self):
         available_directions = [constants.LEFT, constants.RIGHT,
@@ -50,10 +51,18 @@ class MoveableGameObject(GameObject):
         super().clear(screen)
         self._clear_tail(screen)
 
+    def _clear_tail(self, screen):
+        for position in self.tail:
+            last_rect = pygame.Rect(self._get_screen_position(position),
+                                    (constants.GRID_SIZE, constants.GRID_SIZE))
+            pygame.draw.rect(screen, constants.BOARD_BACKGROUND_COLOR,
+                             last_rect)
+        self.tail = []
+
     def _move(self):
         raise NotImplementedError("Subclasses should implement this!")
 
-    def _clear_tail(self):
+    def _get_tail_positions(self):
         raise NotImplementedError("Subclasses should implement this!")
 
     def move(self):
@@ -73,3 +82,6 @@ class MoveableGameObject(GameObject):
 
 class ColliseWithYourSelfException(Exception):
     """Exception caused when a Moveable Gameobject collise with yourself"""
+
+    def __init__(self, *args, **kwargs):
+        return super().__init__(*args, **kwargs)

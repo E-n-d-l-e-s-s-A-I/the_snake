@@ -19,7 +19,7 @@ ENEMY_SNAKE_COLOR = (1, 1, 1)
 ROCK_COLOR = (211, 211, 211)
 
 # Game parametrs
-SPEED = 10
+SPEED = 7
 
 # Names:
 TITLE = 'Удав'

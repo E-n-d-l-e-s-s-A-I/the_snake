@@ -1,10 +1,55 @@
-from game.constatnts import *
+
 import pygame
 from random import randint
 
 
+from game.constatnts import *
+
+COLLSION_WITH_YOURSELF_HANDLER_NAME = 'solve_collision_with_yourself'
+
+
+def get_name_for_solve_collision_handler(cls):
+    """Get name for solve collision handler"""
+    cls_name = cls.__name__.lower()
+    return f'solve_collision_with_{cls_name}'
+
+
+def find_solve_collision_method_in_mro(obj1, obj2):
+    """Find solve collision method in mro"""
+    for cls in type(obj2).mro():
+        handler_name = get_name_for_solve_collision_handler(cls)
+        if hasattr(obj1, handler_name):
+            return obj1.__getattribute__(handler_name)
+
+
+def find_solve_collision_method(obj1, obj2):
+    """Find solve collision method"""
+    if (type(obj1) is type(obj2)
+            and hasattr(obj1, COLLSION_WITH_YOURSELF_HANDLER_NAME)):
+        return COLLSION_WITH_YOURSELF_HANDLER_NAME
+
+    solve_collsion_obj1_to_obj2 = find_solve_collision_method_in_mro(obj1,
+                                                                     obj2)
+
+    solve_collsion_obj2_to_obj1 = find_solve_collision_method_in_mro(obj2,
+                                                                     obj1)
+
+    return solve_collsion_obj1_to_obj2 or solve_collsion_obj2_to_obj1
+
+
 class GameObject:
     """Abstract class of game object"""
+
+    def collide_with(self, other, game):
+        """Fsadf"""
+        handler = find_solve_collision_method(self, other)
+
+        if handler:
+            handler(other, game)
+        else:
+            raise Exception('No specific collision handler for'
+                            f'{type(self).__name__}with '
+                            f'{type(other).__name__}')
 
     def __init__(self, *, gameobjects=[]):
         self._set_random_position(gameobjects)
