@@ -15,9 +15,10 @@ class SnakeGame:
         pygame.init
         self.__initialization()
         self._create_start_game_objects()
-        self.__set_default_options()
+        self._set_default_options()
 
     def __initialization(self):
+        """Initialization method"""
         self._clock = pygame.time.Clock()
         self._screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT),
                                                0, 32)
@@ -27,10 +28,12 @@ class SnakeGame:
         self._time = 0
 
     def _create_start_game_objects(self):
+        """Create start game objects, can be implemented in subclasses"""
         self._create_game_object(UserSnake)
         self._create_game_object(Apple)
 
-    def __set_default_options(self):
+    def _set_default_options(self):
+        """Set default options, can be implemented in subclasses"""
         self._speed = SPEED
 
     def _create_game_object(self, gameobject_cls):
@@ -51,11 +54,12 @@ class SnakeGame:
         pygame.display.update()
 
     def _make_time_difficult_up(self):
-        """Make difficult up"""
+        """Make difficult up, can be implemented in subclasses"""
         if self._time % 50 == 0:
             self._speed += 1
 
     def __move_moveable(self):
+        """Move all moveable objects in field"""
         for moveable in filter(lambda x: isinstance(x, MoveableGameObject),
                                self._game_field.gameobjects):
             moveable.set_direction()
@@ -65,11 +69,13 @@ class SnakeGame:
                 self._delete_game_object(moveable)
 
     def __game_over(self):
+        """Game over method"""
         self._game_field.reset()
         self._create_start_game_objects()
-        self.__set_default_options()
+        self._set_default_options()
 
     def __solve_collisions(self):
+        """Solve all collisions, it calls before __move_all_moveable"""
         while True:
             try:
                 self._game_field.update_moveable()

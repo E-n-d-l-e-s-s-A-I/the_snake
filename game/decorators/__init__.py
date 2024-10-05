@@ -1,4 +1,4 @@
-"""package with decorators"""
+"""Package with decorators"""
 
 from . import *
 from functools import wraps
@@ -18,7 +18,7 @@ def collision_handler(other_cls):
 
 
 def collision_with_yourself_handler(func):
-    """Decorator for collisions handlers"""
+    """Decorator for collisions with yourself handlers"""
 
     @wraps(func)
     def wrapper(self, other, game):

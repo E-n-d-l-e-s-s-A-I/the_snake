@@ -7,7 +7,7 @@ from game.constatnts import *
 
 
 class UserSnake(Snake, UserGameObject):
-    """Class of game objectr snake"""
+    """Class of game objectr user snake"""
 
     _time_to_move = 1
     _color = SNAKE_COLOR

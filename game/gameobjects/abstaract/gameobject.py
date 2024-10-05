@@ -23,7 +23,7 @@ def find_solve_collision_method_in_mro(obj1, obj2):
 
 
 def find_solve_collision_method(obj1, obj2):
-    """Find solve collision method"""
+    """Find solve collision method frp obj1 and obj2"""
     if (type(obj1) is type(obj2)
             and hasattr(obj1, COLLSION_WITH_YOURSELF_HANDLER_NAME)):
         return COLLSION_WITH_YOURSELF_HANDLER_NAME
@@ -41,7 +41,7 @@ class GameObject:
     """Abstract class of game object"""
 
     def collide_with(self, other, game):
-        """Fsadf"""
+        """Solve collision with seld and other object"""
         handler = find_solve_collision_method(self, other)
 
         if handler:
@@ -55,7 +55,7 @@ class GameObject:
         self._set_random_position(gameobjects)
 
     def draw(self, screen):
-        """Draw game object"""
+        """Draw game object on screen"""
         for position in self.positions:
             rect = (pygame.Rect(self._get_screen_position(position),
                                 (GRID_SIZE, GRID_SIZE)))
@@ -72,7 +72,7 @@ class GameObject:
             pygame.draw.rect(screen, BOARD_BACKGROUND_COLOR, rect)
 
     def _set_random_position(self, gameobjects):
-        """Set random position without collisions"""
+        """Set random position without collisions with gameobjects"""
         position = self._get_random_position()
         while position in list(map(lambda x: x.positions, gameobjects)):
             position = self._get_random_position()
@@ -97,5 +97,5 @@ class GameObject:
         return tuple(GRID_SIZE * x for x in position)
 
     def __str__(self):
-        """Str realization"""
+        """Str implementation"""
         return f'{self.__class__.__name__} in {self.positions}'

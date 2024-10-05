@@ -10,7 +10,7 @@ from game.constatnts import *
 
 
 class Snake(MoveableGameObject):
-    """Class of game objectr snake"""
+    """Class of game object snake"""
 
     _time_to_move = 2
     _distane_to_turn = 10
@@ -32,7 +32,7 @@ class Snake(MoveableGameObject):
         return self.positions[0]
 
     def _shorten_snake(self):
-        """Sgorten snake if it need"""
+        """Shorten snake if it need"""
         if self.current_lenght == self.length:
             self.tail.append(self.positions.pop())
         else:
@@ -51,26 +51,26 @@ class Snake(MoveableGameObject):
         return next_head_postion
 
     def _move(self):
-        """Move snake"""
+        """Move snake implementation"""
         next_head_postion = self._get_next_head_position()
         self._lengthen_snake(next_head_postion)
         self._shorten_snake()
 
     @collision_handler(Apple)
     def solve_collision_with_apple(self, apple, game):
-        """Handling collision with apple"""
+        """Collision with apple handler"""
         self.current_lenght += 1
         game._delete_game_object(apple)
         game._create_game_object(Apple)
 
     @collision_handler(Rock)
     def solve_collision_with_rock(self, rock, game):
-        """Handling collision with apple"""
+        """Collision with rock handler"""
         game._delete_game_object(self)
 
     @collision_with_yourself_handler
     def solve_collision_with_snake(self, snake, game):
-        """Handling collision with apple"""
+        """Collision with yourself handler"""
         if (self.get_head_position() in snake.positions
                 and not snake.get_head_position() in self.positions):
             game._delete_game_object(self)

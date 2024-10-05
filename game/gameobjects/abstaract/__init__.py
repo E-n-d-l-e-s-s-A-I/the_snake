@@ -1,4 +1,4 @@
-"""package with abstraact gameobjects"""
+"""Package with abstraact gameobjects"""
 
 from .gameobject import GameObject
 from .moveable_game_object import MoveableGameObject, ColliseWithYourSelfException

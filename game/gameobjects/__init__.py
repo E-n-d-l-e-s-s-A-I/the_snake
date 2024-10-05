@@ -1,4 +1,4 @@
-"""package with gameobjects"""
+"""Package with gameobjects"""
 
 from .apple import Apple
 from .snake import Snake

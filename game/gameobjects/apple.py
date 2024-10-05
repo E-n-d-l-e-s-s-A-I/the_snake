@@ -3,7 +3,7 @@ from .abstaract import StaticGameObject
 
 
 class Apple(StaticGameObject):
-    """Class of game objectr appple"""
+    """Class of game object appple"""
 
     _color = APPLE_COLOR
 

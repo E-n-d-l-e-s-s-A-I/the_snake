@@ -20,6 +20,7 @@ class MoveableGameObject(GameObject):
         self.tail = []
 
     def _get_available_directions(self):
+        """Get avaliable direction"""
         available_directions = [constants.LEFT, constants.RIGHT,
                                 constants.UP, constants.DOWN]
         match self._direction:
@@ -52,6 +53,7 @@ class MoveableGameObject(GameObject):
         self._clear_tail(screen)
 
     def _clear_tail(self, screen):
+        """Clear tail from sreen method"""
         for position in self.tail:
             last_rect = pygame.Rect(self._get_screen_position(position),
                                     (constants.GRID_SIZE, constants.GRID_SIZE))
@@ -60,13 +62,15 @@ class MoveableGameObject(GameObject):
         self.tail = []
 
     def _move(self):
+        """Move method, must be implementation in subclasses"""
         raise NotImplementedError("Subclasses should implement this!")
 
     def _get_tail_positions(self):
+        """Get tail positions method, must be implementation in subclasses"""
         raise NotImplementedError("Subclasses should implement this!")
 
     def move(self):
-        """Move"""
+        """Public move, no need to implement in sbclasses"""
         self.__time_without_move += 1
         if self.__time_without_move == self._time_to_move:
             self._move()

@@ -7,7 +7,7 @@ from .abstaract.static_game_object import StaticGameObject
 
 
 class Field:
-    """Gamefield class"""
+    """Game field class"""
 
     def __init__(self, width, height, screen):
         self.objects_field = [[None for _ in range(height)]
@@ -32,13 +32,13 @@ class Field:
 
     @property
     def static_gameobjects(self):
-        """Static gameobjects"""
+        """Get static gameobjects"""
         return filter(lambda x: isinstance(x, StaticGameObject),
                       self.gameobjects)
 
     @property
     def moveable_gameobjects(self):
-        """Moveable gameobjects"""
+        """Get moveable gameobjects"""
         return filter(lambda x: isinstance(x, MoveableGameObject),
                       self.gameobjects)
 
@@ -62,6 +62,7 @@ class Field:
         gameobject.clear(self.screen)
 
     def _clear_tails(self):
+        """Clear tail oa all moveable gameobjects"""
         for moveable in self.moveable_gameobjects:
             for position in moveable.tail:
                 self.objects_field[position[0]][position[1]] = None
@@ -84,7 +85,7 @@ class Field:
             self.delete_gameobject(gameobject)
 
     def __getitem__(self, index):
-        """getitem() realisation"""
+        """getitem() implementation"""
         return self.objects_field[index]
 
     def draw(self):
