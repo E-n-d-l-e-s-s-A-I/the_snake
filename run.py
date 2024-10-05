@@ -1,6 +1,8 @@
-from game.snake_game import SnakeGame
+from game.games import ClassicGame, WithEnemiesGame, Environment
 
 
 if __name__ == "__main__":
-    game = SnakeGame()
+    game = WithEnemiesGame()
+    # game = ClassicGame()
+    game = Environment()
     game.play()

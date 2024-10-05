@@ -4,6 +4,7 @@ from .gameobjects import (Apple, Snake, Field, MoveableGameObject,
                           GameObject, Rock, UserSnake, CollisionException,
                           ColliseWithYourSelfException)
 
+
 class SnakeGame:
     """Class of game"""
 
@@ -12,11 +13,11 @@ class SnakeGame:
 
     def __init__(self):
         pygame.init
-        self._initialization()
+        self.__initialization()
         self._create_start_game_objects()
-        self._set_default_options()
+        self.__set_default_options()
 
-    def _initialization(self):
+    def __initialization(self):
         self._clock = pygame.time.Clock()
         self._screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT),
                                                0, 32)
@@ -27,16 +28,9 @@ class SnakeGame:
 
     def _create_start_game_objects(self):
         self._create_game_object(UserSnake)
-        self._create_game_object(Snake)
-        self._create_game_object(Snake)
-        self._create_game_object(Snake)
-        self._create_game_object(Snake)
-        self._create_game_object(Apple)
-        self._create_game_object(Apple)
-        self._create_game_object(Apple)
         self._create_game_object(Apple)
 
-    def _set_default_options(self):
+    def __set_default_options(self):
         self._speed = SPEED
 
     def _create_game_object(self, gameobject_cls):
@@ -45,45 +39,37 @@ class SnakeGame:
         if gameobject_cls is UserSnake:
             self._user_snake = gameobject
 
-    def delete_game_object(self, gameobject: GameObject):
+    def _delete_game_object(self, gameobject: GameObject):
         """Delete gameobject"""
         self._game_field.delete_gameobject(gameobject)
         if gameobject is self._user_snake:
-            self._game_over()
+            self.__game_over()
 
-    def _draw_frame(self):
+    def __draw_frame(self):
         """Draw field frame"""
         self._game_field.draw()
         pygame.display.update()
 
     def _make_time_difficult_up(self):
         """Make difficult up"""
-        self._time += 1
-        if self._time % 10 == 0:
-            self._create_game_object(Apple)
-
         if self._time % 50 == 0:
-            # cls._speed += 1
-            self._create_game_object(Snake)
+            self._speed += 1
 
-        if self._time % 100 == 0:
-            self._create_game_object(Rock)
-
-    def _move_moveable(self):
+    def __move_moveable(self):
         for moveable in filter(lambda x: isinstance(x, MoveableGameObject),
                                self._game_field.gameobjects):
             moveable.set_direction()
             try:
                 moveable.move()
             except ColliseWithYourSelfException:
-                self.delete_game_object(moveable)
+                self._delete_game_object(moveable)
 
-    def _game_over(self):
+    def __game_over(self):
         self._game_field.reset()
         self._create_start_game_objects()
-        self._set_default_options()
+        self.__set_default_options()
 
-    def _solve_collisions(self):
+    def __solve_collisions(self):
         while True:
             try:
                 self._game_field.update_moveable()
@@ -96,16 +82,18 @@ class SnakeGame:
     def play(self):
         """Main method of game"""
         while True:
-            self._handle_keys()
+            self.__handle_keys()
             self._clock.tick(self._speed)
 
-            self._move_moveable()
-            self._solve_collisions()
+            self.__move_moveable()
+            self.__solve_collisions()
 
+            self._time += 1
             self._make_time_difficult_up()
-            self._draw_frame()
 
-    def _handle_keys(self):
+            self.__draw_frame()
+
+    def __handle_keys(self):
         """Buttons click processing"""
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

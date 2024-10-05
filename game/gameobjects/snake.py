@@ -60,31 +60,32 @@ class Snake(MoveableGameObject):
     def solve_collision_with_apple(self, apple, game):
         """Handling collision with apple"""
         self.current_lenght += 1
-        game.delete_game_object(apple)
+        game._delete_game_object(apple)
+        game._create_game_object(Apple)
 
     @collision_handler(Rock)
     def solve_collision_with_rock(self, rock, game):
         """Handling collision with apple"""
-        game.delete_game_object(self)
+        game._delete_game_object(self)
 
     @collision_with_yourself_handler
     def solve_collision_with_snake(self, snake, game):
         """Handling collision with apple"""
         if (self.get_head_position() in snake.positions
                 and not snake.get_head_position() in self.positions):
-            game.delete_game_object(self)
+            game._delete_game_object(self)
 
         elif (snake.get_head_position() in self.positions
                 and not self.get_head_position() in snake.positions):
-            game.delete_game_object(snake)
+            game._delete_game_object(snake)
 
         else:
             if game._user_snake is self:
-                game.delete_game_object(self)
+                game._delete_game_object(self)
                 return
             elif game._user_snake is snake:
-                game.delete_game_object(snake)
+                game._delete_game_object(snake)
                 return
             else:
-                game.delete_game_object(snake)
-                game.delete_game_object(self)
+                game._delete_game_object(snake)
+                game._delete_game_object(self)
